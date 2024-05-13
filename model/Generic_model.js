@@ -35,7 +35,7 @@ class BaseModel {
     const values = Object.values(newData);
 
     const query = `INSERT INTO ${this.tableName} VALUES (${placeholders})`;
-    
+    console.log('Query: ', query);
     try {
       const result = await sql.query(query, values);
       return result;
@@ -224,8 +224,13 @@ class BaseModel {
     const uploadPath = this.getUploadPath(username, role, tableName, columnName);
     this.createFoldersIfNotExist(uploadPath);
     
-    const originalFilename = file.originalname;
-    const filename = `${Date.now()}_${originalFilename}`;
+    // const originalFilename = file.originalname;
+    // const filename = `${Date.now()}_${originalFilename}`;
+    // const filePath = path.join(uploadPath, filename);
+
+    const filename = `${file.originalname}`;
+
+    const originalFilename = filename
     const filePath = path.join(uploadPath, filename);
 
     // Save file to local storage
