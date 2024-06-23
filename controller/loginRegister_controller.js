@@ -69,12 +69,12 @@ export const verify = async (req, res) => {
     } else {
       res.status(400).send({
         success: false,
-        message: "Inavlid Credentials",
+        message: "Email is not registered",
       });
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send("Server Error");
+    res.status (500).send("Server Error");
   }
 };
 
@@ -97,35 +97,47 @@ export const checkRegistration = async (req, res) => {
   }
 };
 
+// Updated login function
 export const login = async (req, res) => {
   const { gmail, password } = req.body;
   try {
+    // Check if the email exists in the register table
     const results = await pool.query(
-      "SELECT * FROM register WHERE Username = ? AND Password = ?",
-      [gmail, password]
+      "SELECT * FROM register WHERE Username = ?",
+      [gmail]
     );
 
     if (results[0].length > 0) {
       const user = results[0][0];
-      const accessToken = generateToken({
-        id: user.id,
-        email: user.Email,
-        role: user.Role,
-      });
 
-      res.status(200).send({
-        success: true,
-        message: "Login Successful",
-        data: {
-          user,
-          accessToken,
-        },
-      });
+      // Check if the password matches
+      if (user.Password === password) {
+        const accessToken = generateToken({
+          id: user.id,
+          email: user.Email,
+          role: user.Role,
+        });
+
+        res.status(200).send({
+          success: true,
+          message: "Login Successful",
+          data: {
+            user,
+            accessToken,
+          },
+        });
+      } else {
+        res.status(401).send({
+          success: false,
+          message: "Incorrect password",
+          data: "Incorrect password",
+        });
+      }
     } else {
       res.status(401).send({
         success: false,
-        message: "Invalid credentials",
-        data: "Invalid credentials",
+        message: "Email not registered",
+        data: "Email not registered",
       });
     }
   } catch (err) {
