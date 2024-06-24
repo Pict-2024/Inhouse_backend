@@ -11,6 +11,8 @@ export const register = async (req, res) => {
   let role;
 
   try {
+
+    
     const student = await pool.query(
       "SELECT * FROM student_login WHERE Email = ?",
       [gmail]
@@ -19,6 +21,15 @@ export const register = async (req, res) => {
       "SELECT * FROM teacher_login WHERE Username = ?",
       [gmail]
     );
+    const proEmailCheck = await pool.query(
+      "SELECT * FROM register WHERE Username = ?",
+      [pro_email]
+    );
+
+    if (proEmailCheck[0].length > 0) {
+      return res.status(400).send({ message: "User with this email is already registered" });
+    }
+
     if (student[0].length > 0) {
       role = 2;
       await pool.query(
