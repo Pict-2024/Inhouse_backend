@@ -9,10 +9,9 @@ const generateToken = (data) => {
 export const register = async (req, res) => {
   const { name, gmail, password, pro_email } = req.body;
   let role;
+  console.log(req.body);
 
   try {
-
-    
     const student = await pool.query(
       "SELECT * FROM student_login WHERE Email = ?",
       [gmail]
@@ -21,26 +20,28 @@ export const register = async (req, res) => {
       "SELECT * FROM teacher_login WHERE Username = ?",
       [gmail]
     );
+
     const proEmailCheck = await pool.query(
-      "SELECT * FROM register WHERE Username = ?",
-      [pro_email]
+      "SELECT * FROM register WHERE  Username = ?",
+      [gmail]
     );
 
+    console.log(proEmailCheck[0]);
     if (proEmailCheck[0].length > 0) {
-      return res.status(400).send({ message: "User with this email is already registered" });
+      return res.status(400).send({ message: "User is already registered" });
     }
-
+    
     if (student[0].length > 0) {
       role = 2;
       await pool.query(
         "INSERT INTO register (Name, Username, Password, Role, Professional_Email) VALUES(?,?,?,?,?)",
-        [name, pro_email, password, role, gmail]
+        [name, gmail, password, role, pro_email]
       );
       res.status(200).send("Registration successful");
     } else if (teacher[0].length > 0) {
       role = 1;
       await pool.query(
-        "INSERT INTO register (Name, Username, Password, Role,Professional_Email) VALUES(?,?,?,?,?)",
+        "INSERT INTO register (Name, Username, Password, Role, Professional_Email) VALUES(?,?,?,?,?)",
         [name, gmail, password, role, gmail]
       );
       res.status(200).send("Registration successful");
@@ -52,6 +53,7 @@ export const register = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
+
 
 export const verify = async (req, res) => {
   const { gmail, password } = req.body;
