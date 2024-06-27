@@ -1,6 +1,7 @@
 import pool from "../config/db.js";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "./emailService.js";
+import bcrypt from "bcrypt";
 
 const generateToken = (data) => {
   return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: "1h" });
@@ -9,6 +10,7 @@ const generateToken = (data) => {
 export const register = async (req, res) => {
   const { name, gmail, password, pro_email } = req.body;
   let role;
+
 
   try {
     const student = await pool.query(
@@ -19,18 +21,32 @@ export const register = async (req, res) => {
       "SELECT * FROM teacher_login WHERE Username = ?",
       [gmail]
     );
+
+    const proEmailCheck = await pool.query(
+      "SELECT * FROM register WHERE  Username = ?",
+      [gmail]
+    );
+
+
+    if (proEmailCheck[0].length > 0) {
+      return res.status(400).send({ message: "User is already registered" });
+    }
+
+    const saltRound = 10;
+    const hash_password = await bcrypt.hash(password, saltRound);
+
     if (student[0].length > 0) {
       role = 2;
       await pool.query(
         "INSERT INTO register (Name, Username, Password, Role, Professional_Email) VALUES(?,?,?,?,?)",
-        [name, pro_email, password, role, gmail]
+        [name, gmail, hash_password, role, pro_email]
       );
       res.status(200).send("Registration successful");
     } else if (teacher[0].length > 0) {
       role = 1;
       await pool.query(
-        "INSERT INTO register (Name, Username, Password, Role,Professional_Email) VALUES(?,?,?,?,?)",
-        [name, gmail, password, role, gmail]
+        "INSERT INTO register (Name, Username, Password, Role, Professional_Email) VALUES(?,?,?,?,?)",
+        [name, gmail, hash_password, role, gmail]
       );
       res.status(200).send("Registration successful");
     } else {
@@ -69,7 +85,7 @@ export const verify = async (req, res) => {
     } else {
       res.status(400).send({
         success: false,
-        message: "Inavlid Credentials",
+        message: "Email is not registered",
       });
     }
   } catch (err) {
@@ -97,35 +113,59 @@ export const checkRegistration = async (req, res) => {
   }
 };
 
+// Updated login function
 export const login = async (req, res) => {
   const { gmail, password } = req.body;
   try {
+    // Check if the email exists in the register table
     const results = await pool.query(
-      "SELECT * FROM register WHERE Username = ? AND Password = ?",
-      [gmail, password]
+      "SELECT * FROM register WHERE Professional_Email = ?",
+      [gmail]
     );
 
     if (results[0].length > 0) {
       const user = results[0][0];
-      const accessToken = generateToken({
-        id: user.id,
-        email: user.Email,
-        role: user.Role,
-      });
 
-      res.status(200).send({
-        success: true,
-        message: "Login Successful",
-        data: {
-          user,
-          accessToken,
-        },
-      });
+      // Check if the password matches
+      const isMatch = await bcrypt.compare(password, user.Password);
+      if (isMatch) {
+        // Generate token excluding password
+        const accessToken = generateToken({
+          id: user.id,
+          email: user.Email,
+          role: user.Role,
+        });
+
+        // Create user object without password
+        const userWithoutPassword = {
+          id: user.id,
+          Name: user.Name,
+          Username: user.Username,
+          Role: user.Role,
+          Professional_Email: user.Professional_Email,
+        };
+
+        res.status(200).send({
+          success: true,
+          message: "Login Successful",
+          data: {
+            user: userWithoutPassword,
+            accessToken,
+          },
+        });
+        console.log(req.body); // Log request body if needed
+      } else {
+        res.status(401).send({
+          success: false,
+          message: "Incorrect password",
+          data: "Incorrect password",
+        });
+      }
     } else {
       res.status(401).send({
         success: false,
-        message: "Invalid credentials",
-        data: "Invalid credentials",
+        message: "Email not registered",
+        data: "Email not registered",
       });
     }
   } catch (err) {
@@ -137,6 +177,8 @@ export const login = async (req, res) => {
     });
   }
 };
+
+
 
 export const getAllTeacher = async (req, res) => {
   try {
@@ -261,7 +303,8 @@ export const resetPasswordController = async (req, res) => {
       return;
     }
 
-    await pool.query('UPDATE register SET Password = ? WHERE Username = ?', [newPassword, email]);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE register SET Password = ? WHERE Username = ?', [hashedPassword, email]);
 
     res.status(200).send({
       success: true,
