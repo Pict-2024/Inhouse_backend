@@ -15,8 +15,8 @@ process.on("uncaughtException", (err) => {
 
 // starting the server
 const server = app.listen(process.env.PORT, () => {
-  console.log(`Server is working on http://10.10.15.150:${process.env.PORT}`);
-    //  console.log(`Server is working on http://localhost:${process.env.PORT}`);
+  //console.log(`Server is working on http://10.10.15.150:${process.env.PORT}`);
+   console.log(`Server is working on http://localhost:${process.env.PORT}`);
 });
 
 
