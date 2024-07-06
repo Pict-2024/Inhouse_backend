@@ -179,6 +179,35 @@ export const login = async (req, res) => {
 };
 
 
+export const hashExistingPassword = async (req, res) => {
+  try {
+    // change fields here
+    // const users = await pool.query("SELECT Username, Password FROM register");
+    // const { rows: users } = await pool.query("SELECT Username, Password FROM register WHERE Hashed_Password IS NULL");
+    const result = await pool.query("SELECT Username, Password FROM register WHERE Hashed_Password = '' ");
+    const users = result[0];
+
+    // console.log(users);
+    for (const user of users) {
+      console.log(user.Password);
+
+      const saltRound = 10;
+      const hash_password = await bcrypt.hash(user.Password, saltRound);
+      await pool.query("UPDATE register SET Hashed_Password = ? WHERE Username = ?", [
+        hash_password,
+        user.Username,
+      ]);
+    }
+    console.log('success');
+    res.status(200).send({
+      success: true,
+      message: "Password hashed",
+    });
+  } catch (error) {
+    console.error(error);
+  } 
+};
+
 
 export const getAllTeacher = async (req, res) => {
   try {
