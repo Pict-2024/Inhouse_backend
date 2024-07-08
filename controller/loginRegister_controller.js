@@ -178,7 +178,7 @@ export const login = async (req, res) => {
   }
 };
 
-
+//###########################################################################################################################3
 export const hashExistingPassword = async (req, res) => {
   try {
     // change fields here
@@ -207,6 +207,7 @@ export const hashExistingPassword = async (req, res) => {
     console.error(error);
   } 
 };
+//######################################################################################################################3
 
 
 export const getAllTeacher = async (req, res) => {
