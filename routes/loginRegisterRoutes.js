@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import { login, register, verify, checkRegistration, getAllStudent, getAllTeacher, forgotPasswordController, resetPasswordController } from '../controller/loginRegister_controller.js';
+import { login, register, verify, checkRegistration, getAllStudent, getAllTeacher, forgotPasswordController, resetPasswordController, hashExistingPassword } from '../controller/loginRegister_controller.js';
 
 // const login = require("../../controllers/register.js")
 // const register = require("../../controllers/register.js");
@@ -11,6 +11,9 @@ import { login, register, verify, checkRegistration, getAllStudent, getAllTeache
 
 router.post('/register', register);
 
+//--------------------------------------------------
+router.post('/hashpassword',hashExistingPassword);
+//-------------------------------------------------
 router.post('/verify', verify);
 
 router.get('/checkRegistration/:email', checkRegistration);

@@ -25,13 +25,13 @@ const __dirname = dirname(__filename);
 
 
 // //Simple middleware to log incoming requests
-app.use((req, res, next) => {
-    console.log(`Received request:${req.method} ${req.protocol}://${req.hostname}:${process.env.PORT}${req.url} `);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
+// app.use((req, res, next) => {
+//     console.log(`Received request:${req.method} ${req.protocol}://${req.hostname}:${process.env.PORT}${req.url} `);
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//     next();
+// });
 
 app.use("/api/v1/teacher", teachersRoute);
 app.use("/api/v1/auth", loginRegisterRoutes);
