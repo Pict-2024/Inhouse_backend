@@ -56,7 +56,7 @@ router.post("/book-pb/filter", controller2.filterData);
 // router.post("/book-pb/get-distinct-vals", controller2.getDistinctValues) // get the distinct values from filtering cols
 router.post("/book-pb/get-distinct-cols-vals", controller2.getFilteringColumnsWithDistinctValues);  //get distinct values from filter cols
 router.post("/book-pb/upload-file", upload.array('files'), controller2.uploadFile);
-
+router.get("/book-pb/:T_ID/:username",controller2.getByID);
 
 // Faculty Conference Publications Routes
 const controller3 = new FacultyConferencePublicationsController();
