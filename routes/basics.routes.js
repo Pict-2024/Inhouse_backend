@@ -16,4 +16,6 @@ router.get("/get-count-tables",basicController.getEntryCountsAPI)
 router.post("/get-notices", basicController.getNotices);
 router.post("/send-notice", basicController.addNotices);
 
+//exporting
+
 export default router;

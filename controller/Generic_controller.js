@@ -40,6 +40,13 @@ class GenericController {
     res.json({ success: true, data: data[0] });
   });
 
+  getByID = catchAsyncErrors(async (req, res) => {
+    const modelInstance = new this.Model();
+    const { T_ID , username} = req.params;
+    const data = await modelInstance.getByID(T_ID,username);
+    res.json({ success: true, data: data[0] });
+  });
+
 
   updateByUsername = catchAsyncErrors(async (req, res) => {
     const modelInstance = new this.Model();

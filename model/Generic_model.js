@@ -26,6 +26,12 @@ class BaseModel {
     return await sql.query(query, [username]);
   }
 
+  async getByID(T_ID,username) {
+    const query = `SELECT * FROM ${this.tableName} WHERE T_ID = ? AND Username=?`;
+    const results = await sql.query(query, [T_ID,username]);
+    return results;
+  }
+
   async create(newData) {
     // 
     const columns = Object.keys(newData).join(", ");

@@ -47,7 +47,7 @@ app.use("/api/v1/student", studentRoutes);
 //   res.sendFile(path.resolve(__dirname, "../Inhouse_frontend/dist/index.html"));
 // });
 
-// this middleware should be used at the last
+
 app.use(errorMiddleware)
 
 export default app
